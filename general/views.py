@@ -20,6 +20,10 @@ from general.utils import *
 
 POSITION = ['PG', 'SG', 'SF', 'PF', 'C']
 
+SEASON_START_MONTH = 10
+SEASON_START_DAY = 15
+SEASON_END_MONTH = 10
+SEASON_END_DAY = 14
 
 def _get_game_today():
     return Game.objects.all()
@@ -43,7 +47,7 @@ def download_game_report(request):
     season = current_season()
     q = Q(team__in=[game.home_team, game.visit_team]) & \
         Q(opp__in=[game.home_team, game.visit_team]) & \
-        Q(date__range=[datetime.date(season, 10, 1), datetime.date(season+1, 6, 30)])
+        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
     qs = PlayerGame.objects.filter(q)
     fields = [f.name for f in PlayerGame._meta.get_fields() 
               if f.name not in ['id', 'is_new']]
@@ -85,7 +89,7 @@ def get_players(request):
 def get_games_(pid, loc, opp, season):
     player = Player.objects.get(id=pid)
     q = Q(name='{} {}'.format(player.first_name, player.last_name)) \
-      & Q(date__range=[datetime.date(season, 10, 1), datetime.date(season+1, 6, 30)])
+      & Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
 
     if opp:
         q &= Q(opp=opp)
@@ -97,7 +101,7 @@ def get_games_(pid, loc, opp, season):
 
 def current_season():
     today = datetime.date.today()
-    return today.year if today > datetime.date(today.year, 10, 17) else today.year - 1
+    return today.year if today > datetime.date(today.year, SEASON_START_MONTH, SEASON_START_DAY) else today.year - 1
 
 
 def player_detail(request, pid):
@@ -167,7 +171,7 @@ def get_team_games(team):
 
     season = current_season()
     q = Q(name__in=players_) & \
-        Q(date__range=[datetime.date(season, 10, 1), datetime.date(season+1, 6, 30)])
+        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
 
     return PlayerGame.objects.filter(q)
 
@@ -177,7 +181,7 @@ def get_team_stat(team, loc):
     # allowance
     season = current_season()
     q = Q(opp=team) & Q(location=loc_) & \
-        Q(date__range=[datetime.date(season, 10, 1), datetime.date(season+1, 6, 30)])
+        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
     a_teams = PlayerGame.objects.filter(q)
     a_teams_ = a_teams.values('date').annotate(trb=Sum('trb'), 
                                                ast=Sum('ast'),
@@ -195,7 +199,7 @@ def get_team_stat(team, loc):
 
     # score
     q = Q(team=team) & Q(location=loc) & \
-        Q(date__range=[datetime.date(season, 10, 1), datetime.date(season+1, 6, 30)])
+        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
     s_teams = PlayerGame.objects.filter(q)
     s_teams_ = s_teams.values('date').annotate(trb=Sum('trb'), 
                                                ast=Sum('ast'),
@@ -246,12 +250,12 @@ def get_team_stat(team, loc):
             tm_pos_[pos] = players.filter(name__in=players_).aggregate(Sum('fpts'))['fpts__sum'] or 0
         if tm_pos_['PG'] > 0 and tm_pos_['SG'] > 0:
             tm_pos.append(tm_pos_)
-        print ii['date'], players[0].team, players[0].opp, players[0].location, tm_pos_
+        print (ii['date'], players[0].team, players[0].opp, players[0].location, tm_pos_)
         
     for pos in POSITION:
         res[pos] = sum(ii[pos] for ii in tm_pos) / len(tm_pos) if len(tm_pos) else -1
 
-    print '----------------------------'
+    print ('----------------------------')
     # for FPS TM POS
     tm_pos = []
     # for each distinct match
@@ -269,8 +273,8 @@ def get_team_stat(team, loc):
             tm_pos_[pos] = players.filter(name__in=players_).aggregate(Sum('fpts'))['fpts__sum'] or 0
         if tm_pos_['PG'] > 0 and tm_pos_['SG'] > 0:
             tm_pos.append(tm_pos_)
-        print ii['date'], players[0].team, players[0].opp, players[0].location, tm_pos_
-    print '----------------------------'
+        print (ii['date'], players[0].team, players[0].opp, players[0].location, tm_pos_)
+    print ('----------------------------')
     for pos in POSITION:
         res['s_'+pos] = sum(ii[pos] for ii in tm_pos) / len(tm_pos) if len(tm_pos) else -1
 
@@ -290,7 +294,7 @@ def get_player(full_name):
 def get_win_loss(team):
     season = current_season()
     q = Q(team=team) & \
-        Q(date__range=[datetime.date(season, 10, 1), datetime.date(season+1, 6, 30)])
+        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
 
     team_games = PlayerGame.objects.filter(q)
     game_results = team_games.values('date', 'game_result').distinct()

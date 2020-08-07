@@ -1,4 +1,5 @@
-import urllib2
+# import urllib2
+import requests
 
 from bs4 import BeautifulSoup
 
@@ -61,9 +62,11 @@ def clean_unicode(name):
 def scrape(param):
     dp = "https://www.basketball-reference.com/friv/dailyleaders.fcgi?" + param
     print (dp)
-    response = urllib2.urlopen(dp)
-    r = response.read()
-
+    # response = urllib2.urlopen(dp)
+    # r = response.read()
+    response = requests.get(dp)
+    r = response.text
+    
     soup = BeautifulSoup(r, "html.parser")
 
     try:

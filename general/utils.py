@@ -19,8 +19,8 @@ def download_response(queryset, path, result_csv_fields):
 
         try:
             result_csv.writerow(game_)
-        except Exception, e:
-            print game_
+        except Exception:
+            print (game_)
 
     result.close()
 
