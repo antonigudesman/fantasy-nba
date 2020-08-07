@@ -26,7 +26,7 @@ def get_players(data_source):
                   'proj_custom', 'proj_floor', 'proj_original', 'proj_points', 'proj_rotowire', 
                   'proj_third_party_one', 'proj_third_party_two', 'actual_position', 
                   'salary', 'team', 'team_points']
-        print data_source, len(players)
+        print (data_source, len(players))
         for ii in players:
             try:
                 defaults = { key: str(ii[key]).replace(',', '') for key in fields }
