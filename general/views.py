@@ -327,7 +327,7 @@ def get_team_info(team, loc):
             value = player.salary / 250 + 10
 
             # update l3a for the player
-            Player.objects.filter(uid=player.uid).update(salary_original=l3a)
+            Player.objects.filter(uid=player.uid).update(l3a=l3a)
 
             players.append({
                 'avatar': player.avatar,
@@ -411,10 +411,10 @@ def build_player_cache():
         sfp = games.filter(location=game_info[player.team]).aggregate(Avg('fpts'))['fpts__avg'] or 0
 
         Player.objects.filter(uid=player.uid).update(
-            minutes=ampg,
-            over_under=smpg,
-            salary_custom=afp,
-            proj_site=sfp,
+            ampg=ampg,
+            smpg=smpg,
+            afp=afp,
+            sfp=sfp,
             value=player.salary / 250 + 10
         )
 
@@ -452,8 +452,8 @@ def player_match_up(request):
     for player in players:
         position = player.actual_position.split('/')[0] if player.position == 'UT' else player.position
         if pos in position:
-            if min_afp <= player.salary_custom <= max_afp:
-                if min_sfp <= player.proj_site <= max_sfp:
+            if min_afp <= player.afp <= max_afp:
+                if min_sfp <= player.sfp <= max_sfp:
                     vs = game_info[player.team][0]
                     loc = game_info[player.team][1]
                     loc_ = game_info[player.team][2]
@@ -471,12 +471,12 @@ def player_match_up(request):
                         'pos': position,
                         'inj': player.injury,
                         'salary': player.salary,
-                        'ampg': player.minutes,
-                        'smpg': player.over_under,
-                        'mdiff': formated_diff(player.over_under-player.minutes,),
-                        'afp': player.salary_custom,
-                        'sfp': player.proj_site,
-                        'pdiff': formated_diff(player.proj_site-player.salary_custom),
+                        'ampg': player.ampg,
+                        'smpg': player.smpg,
+                        'mdiff': formated_diff(player.smpg-player.ampg,),
+                        'afp': player.afp,
+                        'sfp': player.sfp,
+                        'pdiff': formated_diff(player.sfp-player.afp),
                         'val': player.salary / 250 + 10,    # exception
                         'opp': opr_info_[position],
                         'opr': opr_info_[position+'_rank'],
