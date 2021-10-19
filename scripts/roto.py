@@ -21,11 +21,11 @@ def get_players(data_source):
 
         players = requests.get(url).json()
 
-        fields = ['first_name', 'last_name', 'money_line', 
-                  'point_spread', 'position', 'proj_ceiling', 'opponent',
-                  'proj_custom', 'proj_floor', 'proj_original', 'proj_points', 'proj_rotowire', 
-                  'proj_third_party_one', 'proj_third_party_two', 'actual_position', 
-                  'salary', 'team', 'team_points']
+        fields = ['first_name', 'last_name',
+                  'position', 'opponent',
+                  'proj_points',
+                  'actual_position', 
+                  'salary', 'team']
         print (data_source, len(players))
         for ii in players:
             try:
