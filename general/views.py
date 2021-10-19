@@ -17,19 +17,19 @@ from general.models import *
 from general.lineup import *
 from general.color import *
 from general.utils import *
+from general.constants import (
+    CSV_FIELDS, POSITION, SEASON_START_MONTH, SEASON_START_DAY,
+    SEASON_END_MONTH, SEASON_END_DAY
+)
 
-POSITION = ['PG', 'SG', 'SF', 'PF', 'C']
-
-SEASON_START_MONTH = 10
-SEASON_START_DAY = 15
-SEASON_END_MONTH = 10
-SEASON_END_DAY = 14
 
 def _get_game_today():
     return Game.objects.all()
 
+
 def _all_teams():
     return [ii['team'] for ii in Player.objects.values('team').distinct()]
+
 
 def players(request):
     players = Player.objects.filter(data_source='FanDuel').order_by('first_name')
@@ -40,6 +40,7 @@ def lineup(request):
     data_sources = DATA_SOURCE
     games = _get_game_today()
     return render(request, 'lineup.html', locals())
+
 
 def download_game_report(request):
     game = request.GET.get('game')
@@ -53,6 +54,7 @@ def download_game_report(request):
               if f.name not in ['id', 'is_new']]
     path = "/tmp/nba_games({}@{}).csv".format(game.visit_team, game.home_team)
     return download_response(qs, path, fields)
+
 
 @csrf_exempt
 def fav_player(request):
@@ -370,6 +372,7 @@ def filter_players_fpa(team, min_afp, max_afp):
     except Exception as e:
         return {}
 
+
 @csrf_exempt
 def team_match_up(request):
     min_afp = float(request.POST.get('min_afp'))
@@ -414,6 +417,7 @@ def build_player_cache():
             proj_site=sfp,
             value=player.salary / 250 + 10
         )
+
 
 @csrf_exempt
 def player_match_up(request):
@@ -501,6 +505,7 @@ def player_match_up(request):
 def mean(numbers):
     return float(sum(numbers)) / max(len(numbers), 1)
 
+
 def _get_lineups(request):
     ids = request.POST.getlist('ids')
     locked = request.POST.getlist('locked')
@@ -541,12 +546,6 @@ def gen_lineups(request):
 def export_lineups(request):
     lineups, _ = _get_lineups(request)
     ds = request.POST.get('ds')
-    CSV_FIELDS = {
-        'FanDuel': ['PG', 'PG', 'SG', 'SG', 'SF', 'SF', 'PF', 'PF', 'C'],
-        'DraftKings': ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F', 'UTIL'],
-        'Yahoo': ['PG', 'SG', 'G', 'SF', 'PF', 'F', 'C', 'UTIL'],
-        'Fanball': ['PG', 'SG', 'SF', 'PF', 'C', 'G', 'F/C', 'UTIL']
-    }
 
     csv_fields = CSV_FIELDS[ds]
     path = "/tmp/.fantasy_nba_{}.csv".format(ds.lower())

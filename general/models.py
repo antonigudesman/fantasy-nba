@@ -3,12 +3,8 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-DATA_SOURCE = (
-    ('FanDuel', 'FanDuel'),
-    ('DraftKings', 'DraftKings'),
-    ('Yahoo', 'Yahoo'),
-    ('Fanball', 'Fanball')
-)
+from general.constants import DATA_SOURCE
+
 
 class Player(models.Model):
     uid = models.IntegerField()
@@ -56,12 +52,12 @@ class FavPlayer(models.Model):
         return '{} {}'.format(self.player.first_name, self.player.last_name)
 
 
-GAME_RESULT = (
-    ('W', 'Win'),
-    ('L', 'Loss'),
-)
-
 class PlayerGame(models.Model):
+    GAME_RESULT = (
+        ('W', 'Win'),
+        ('L', 'Loss'),
+    )
+
     name = models.CharField("Player", max_length=50)
     team = models.CharField("Tm", max_length=50)
     location = models.CharField("H-A", max_length=50)
@@ -92,12 +88,12 @@ class PlayerGame(models.Model):
         return self.name
 
 
-GAME_STATUS = (
-    ('started', 'Started'),
-    ('upcomming', 'Upcomming')
-)
-
 class Game(models.Model):
+    GAME_STATUS = (
+        ('started', 'Started'),
+        ('upcomming', 'Upcomming')
+    )
+
     home_team = models.CharField(max_length=20)
     visit_team = models.CharField(max_length=20)
     ou = models.FloatField(default=0)
@@ -109,8 +105,10 @@ class Game(models.Model):
         return '{} - {}'.format(self.home_team, self.visit_team)
 
 
-# Team Matchup Sheet Cache
 class TMSCache(models.Model):
+    '''
+    Team Matchup Sheet Cache
+    '''
     team = models.CharField(max_length=10)
     type = models.IntegerField()
     body = models.TextField()
