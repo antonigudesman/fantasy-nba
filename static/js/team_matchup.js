@@ -22,7 +22,7 @@ $(document).ready(function () {
     $(this).addClass('active');
     game = $(this).data('game');
     location.hash = game;
-    $('#download_game_report').attr('href', '/download_game_report?game='+game);
+    $('#download-game-report').attr('href', '/download-game-report?game='+game);
     loadBoard();
   });
   
