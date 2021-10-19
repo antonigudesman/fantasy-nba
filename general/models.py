@@ -15,25 +15,15 @@ class Player(models.Model):
     opponent = models.CharField(max_length=50)
     
     minutes = models.FloatField(default=0)              # ampg
-    money_line = models.IntegerField(default=0)
     over_under = models.FloatField(default=0)           # smpg
-    point_spread = models.FloatField(default=0)
     position = models.CharField(max_length=50)
     actual_position = models.CharField(max_length=50)
-    proj_ceiling = models.FloatField(default=0)
-    proj_custom = models.FloatField(default=0)
-    proj_floor = models.FloatField(default=0)
-    proj_original = models.FloatField(default=0)
     proj_points = models.FloatField(default=0)
-    proj_rotowire = models.FloatField(default=0)
     proj_site = models.FloatField(default=0)            # sfp
-    proj_third_party_one = models.FloatField(default=0)
-    proj_third_party_two = models.FloatField(default=0)  
     salary = models.IntegerField(default=0)
     salary_custom = models.FloatField(default=0)        # afp
     salary_original = models.FloatField(default=0)      # l3a
     team = models.CharField(max_length=50)
-    team_points = models.FloatField(default=0)
     value = models.FloatField(default=0)
     
     play_today = models.BooleanField(default=False)
