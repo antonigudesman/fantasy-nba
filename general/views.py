@@ -11,7 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Avg, Q
 from django.forms.models import model_to_dict
 
-from general.models import *
+from general.models import Game, PlayerGame, Player, TMSCache
+from general.constants import DATA_SOURCE
 from general.lineup import Roster
 from general.color import *
 from general.utils import all_teams, current_season, formated_diff, mean, get_num_lineups
