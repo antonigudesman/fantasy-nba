@@ -1,16 +1,13 @@
 from ortools.linear_solver import pywraplp
+
 from general.models import *
+from general.constants import (
+    POSITION_ORDER, POSITION_LIMITS, SALARY_CAP, ROSTER_SIZE,
+    TEAM_LIMIT, TEAM_MEMEBER_LIMIT, CSV_MAP_FIELDS
+)
 
 
 class Roster:
-    POSITION_ORDER = {
-        "PG": 0,
-        "SG": 1,
-        "SF": 2,
-        "PF": 3,
-        "C": 4
-    }
-
     def __init__(self, ds='FanDuel'):
         self.players = []
         self.ds = ds
@@ -42,28 +39,23 @@ class Roster:
         return res
 
     def position_order(self, player):
-        return self.POSITION_ORDER[player.position]
+        return POSITION_ORDER[player.position]
 
     def dict_position_order(self, player):
-        if player['pos'] in self.POSITION_ORDER:
-            return self.POSITION_ORDER[player['pos']] + 10.0 / player['salary']
+        if player['pos'] in POSITION_ORDER:
+            return POSITION_ORDER[player['pos']] + 10.0 / player['salary']
         else:
             return 100
 
     def sorted_players(self):
-        return sorted(self.players, key=self.position_order)
+        return sorted(self.players, key=POSITION_ORDER)
 
     def get_csv(self, ds):
         s = ''
         if ds == 'FanDuel': 
             s = ','.join(str(x) for x in self.sorted_players())+'\n'
         else:
-            pos = {
-                'DraftKings': ['PG', 'SG', 'SF', 'PF', 'C', 'PG,SG', 'SF,PF'],
-                'Yahoo': ['PG', 'SG', 'PG,SG', 'SF', 'PF', 'SF,PF', 'C'],
-                'Fanball': ['PG', 'SG', 'SF', 'PF', 'C', 'PG,SG', 'SF,PF,C']
-            }
-            pos = pos[ds]
+            pos = CSV_MAP_FIELDS[ds]
             players = list(self.players)
             for ii in pos:
                 for jj in players:
@@ -81,71 +73,6 @@ class Roster:
         s += "\tCost: $%s" % self.spent()
         return s
 
-
-POSITION_LIMITS = {
-    'FanDuel': [
-                   ["PG", 2, 2],
-                   ["SG", 2, 2],
-                   ["SF", 2, 2],
-                   ["PF", 2, 2],
-                   ["C", 1, 1]
-               ],
-    'DraftKings': [
-                      ["PG", 1, 3],
-                      ["SG", 1, 3],
-                      ["SF", 1, 3],
-                      ["PF", 1, 3],
-                      ["C", 1, 2],
-                      ["PG,SG", 3, 4],
-                      ["SF,PF", 3, 4]
-                  ],
-    'Yahoo': [
-                ["PG", 1, 3],
-                ["SG", 1, 3],
-                ["SF", 1, 3],
-                ["PF", 1, 3],
-                ["C", 1, 2],
-                ["PG,SG", 3, 4],
-                ["SF,PF", 3, 4]
-            ],
-    'Fanball': [
-                ["PG", 1, 3],
-                ["SG", 1, 3],
-                ["SF", 1, 3],
-                ["PF", 1, 3],
-                ["C", 1, 3],
-                ["PG,SG", 3, 4],
-                ["SF,PF", 3, 4]
-            ]
-}
-
-SALARY_CAP = {
-    'FanDuel': 60000,
-    'DraftKings': 50000,
-    'Yahoo': 200,
-    'Fanball': 55000
-}
-
-ROSTER_SIZE = {
-    'FanDuel': 9,
-    'DraftKings': 8,
-    'Yahoo': 8,
-    'Fanball': 8
-}
-
-TEAM_LIMIT = {
-    'FanDuel': 3,
-    'Yahoo': 3,
-    'DraftKings': 2,
-    'Fanball': 2
-}
-
-TEAM_MEMEBER_LIMIT = {
-    'FanDuel': 4,
-    'Yahoo': 6,
-    'DraftKings': 8,
-    'Fanball': 8
-}
 
 def get_lineup(ds, players, teams, locked, max_point, con_mul):
     solver = pywraplp.Solver('nba-lineup', pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
@@ -212,6 +139,7 @@ def get_lineup(ds, players, teams, locked, max_point, con_mul):
                 roster.add_player(player)
 
         return roster
+
 
 def calc_lineups(players, num_lineups, locked, ds, cus_proj={}):
     result = []
