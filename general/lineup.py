@@ -1,4 +1,3 @@
-import operator as op
 from ortools.linear_solver import pywraplp
 from general.models import *
 
