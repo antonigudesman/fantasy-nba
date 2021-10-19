@@ -24,7 +24,7 @@
           </td>
           <td>{{ ii.team }}</td>
           <td>{{ ii.position }}</td>
-          <td>{% if ii.salary_original > -1 %}{{ ii.salary_original|floatformat:1 }}{% else %}-{% endif %}</td>
+          <td>{% if ii.l3a > -1 %}{{ ii.l3a|floatformat:1 }}{% else %}-{% endif %}</td>
           <td class="psl-3">
             <input type="text" class="_4r9f03f" data-id="{{ ii.id }}" value="{{ ii|cus_proj:request.session }}" onchange="change_point(this);">
           </td>
