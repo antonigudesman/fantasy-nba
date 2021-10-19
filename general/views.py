@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os
+import csv
 import json
-import mimetypes
 import datetime
-from wsgiref.util import FileWrapper
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
-from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Avg, Q
+from django.forms.models import model_to_dict
 
 from general.models import *
 from general.lineup import Roster
 from general.color import *
-from general.utils import download_response, _all_teams, current_season, formated_diff, mean, get_num_lineups
+from general.utils import all_teams, current_season, formated_diff, mean, get_num_lineups
 from general.compute import get_games_, get_ranking, generate_lineups, filter_players_fpa
 from general.constants import (
     CSV_FIELDS, POSITION, SEASON_START_MONTH, SEASON_START_DAY,
@@ -39,14 +37,31 @@ def download_game_report(request):
     game = request.GET.get('game')
     game = Game.objects.get(id=game)
     season = current_season()
+
     q = Q(team__in=[game.home_team, game.visit_team]) & \
         Q(opp__in=[game.home_team, game.visit_team]) & \
         Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
+
     qs = PlayerGame.objects.filter(q)
     fields = [f.name for f in PlayerGame._meta.get_fields() 
               if f.name not in ['id', 'is_new']]
-    path = "/tmp/nba_games({}@{}).csv".format(game.visit_team, game.home_team)
-    return download_response(qs, path, fields)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="nba_games({}@{}).csv"'.format(game.visit_team, game.home_team)
+    response['X-Frame-Options'] = 'GOFORIT'
+
+    writer = csv.DictWriter(response, fields)
+    writer.writeheader()
+
+    for game in qs:
+        game_ = model_to_dict(game, fields=fields)
+
+        try:
+            writer.writerow(game_)
+        except Exception:
+            print (game_)
+
+    return response
 
 
 @csrf_exempt
@@ -169,8 +184,7 @@ def player_match_up(request):
         if loc == '@' or loc == 'all':
             teams_.append(teams[1])
 
-    all_teams = _all_teams()
-    colors = linear_gradient('#90EE90', '#137B13', len(all_teams))['hex']
+    colors = linear_gradient('#90EE90', '#137B13', len(all_teams()))['hex']
     players = Player.objects.filter(data_source=ds, play_today=True, team__in=teams_) \
                             .order_by('-proj_points')
     players_ = []
@@ -245,22 +259,19 @@ def gen_lineups(request):
 
 def export_lineups(request):
     lineups, _ = generate_lineups(request)
+
     ds = request.POST.get('ds')
 
-    csv_fields = CSV_FIELDS[ds]
-    path = "/tmp/.fantasy_nba_{}.csv".format(ds.lower())
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="fantasy_nba_{}.csv"'.format(ds.lower())
+    response['X-Frame-Options'] = 'GOFORIT'
 
-    with open(path, 'w') as f:
-        f.write(','.join(csv_fields)+'\n')
-        for ii in lineups:
-            f.write(ii.get_csv(ds))
-    
-    wrapper = FileWrapper( open( path, "r" ) )
-    content_type = mimetypes.guess_type( path )[0]
+    header = CSV_FIELDS[ds]
+    writer = csv.writer(response)
+    writer.writerow(header)
 
-    response = HttpResponse(wrapper, content_type = content_type)
-    response['Content-Length'] = os.path.getsize( path ) # not FileField instance
-    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str( os.path.basename( path ) ) # same here        
+    for ii in lineups:
+        writer.writerow(ii.get_csv(ds))
 
     return response
 

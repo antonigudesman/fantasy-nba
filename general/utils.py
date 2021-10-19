@@ -1,25 +1,17 @@
-import os
-import csv
 import datetime
-import mimetypes
-
-from wsgiref.util import FileWrapper
-
-from django.utils.encoding import smart_str
-from django.http import HttpResponse
-from django.forms.models import model_to_dict
 
 from general.models import Player
 from general.constants import SEASON_START_MONTH, SEASON_START_DAY
 
 
-def _all_teams():
+def all_teams():
     return [ii['team'] for ii in Player.objects.values('team').distinct()]
 
 
 def current_season():
     today = datetime.date.today()
-    return today.year if today > datetime.date(today.year, SEASON_START_MONTH, SEASON_START_DAY) else today.year - 1
+    compare_date = datetime.date(today.year, SEASON_START_MONTH, SEASON_START_DAY)
+    return today.year if today > compare_date else today.year - 1
 
 
 def formated_diff(val):
@@ -42,33 +34,4 @@ def mean(numbers):
 
 
 def get_num_lineups(player, lineups):
-    num = 0
-    for ii in lineups:
-        if ii.is_member(player):
-            num = num + 1
-    return num
-
-
-def download_response(queryset, path, result_csv_fields):
-    result = open(path, 'w')
-    result_csv = csv.DictWriter(result, fieldnames=result_csv_fields)
-    result_csv.writeheader()
-
-    for game in queryset:
-        game_ = model_to_dict(game, fields=result_csv_fields)
-
-        try:
-            result_csv.writerow(game_)
-        except Exception:
-            print (game_)
-
-    result.close()
-
-    wrapper = FileWrapper( open( path, "r" ) )
-    content_type = mimetypes.guess_type( path )[0]
-
-    response = HttpResponse(wrapper, content_type = content_type)
-    response['Content-Length'] = os.path.getsize( path ) 
-    response['Content-Disposition'] = 'attachment; filename=%s' % smart_str( os.path.basename( path ) ) 
-
-    return response
+    return sum([1 for ii in lineups if ii.is_member(player)])

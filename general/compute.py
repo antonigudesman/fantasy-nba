@@ -8,7 +8,7 @@ from general.constants import (
     POSITION, SEASON_START_MONTH, SEASON_START_DAY,
     SEASON_END_MONTH, SEASON_END_DAY
 )
-from general.utils import current_season, _all_teams, get_player
+from general.utils import current_season, all_teams, get_player
 from general.lineup import Roster, calc_lineups
 
 
@@ -277,9 +277,8 @@ def build_player_cache():
 
 
 def build_TMS_cache():
-    all_teams = _all_teams()
-    stat_home = [get_team_stat(ii, '') for ii in all_teams]
-    stat_away = [get_team_stat(ii, '@') for ii in all_teams]
+    stat_home = [get_team_stat(ii, '') for ii in all_teams()]
+    stat_away = [get_team_stat(ii, '@') for ii in all_teams()]
 
     attrs = stat_home[0].keys()
     for attr in attrs:

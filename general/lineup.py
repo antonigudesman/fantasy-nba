@@ -51,21 +51,21 @@ class Roster:
         return sorted(self.players, key=POSITION_ORDER)
 
     def get_csv(self, ds):
-        s = ''
         if ds == 'FanDuel': 
-            s = ','.join(str(x) for x in self.sorted_players())+'\n'
+            row = [str(x) for x in self.sorted_players()]
         else:
             pos = CSV_MAP_FIELDS[ds]
             players = list(self.players)
+            row = []
             for ii in pos:
                 for jj in players:
                     if jj.position in ii:
-                        s += str(jj) + ','
+                        row.append[str(jj)]
                         players.remove(jj)
                         break
-            s += str(players[0])+'\n'
+            row.append(players[0])
 
-        return s
+        return row
 
     def __repr__(self):
         s = '\n'.join(str(x) for x in self.sorted_players())
