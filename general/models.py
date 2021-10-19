@@ -14,7 +14,7 @@ class Player(models.Model):
     injury = models.CharField(max_length=250, blank=True, null=True)
     opponent = models.CharField(max_length=50)
     team = models.CharField(max_length=50)
-    
+
     ampg = models.FloatField(default=0)
     smpg = models.FloatField(default=0)
     position = models.CharField(max_length=50)
@@ -25,7 +25,7 @@ class Player(models.Model):
     afp = models.FloatField(default=0)
     l3a = models.FloatField(default=0)
     value = models.FloatField(default=0)
-    
+
     play_today = models.BooleanField(default=False)
     data_source = models.CharField(max_length=30, choices=DATA_SOURCE, default='FanDuel')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -79,17 +79,11 @@ class PlayerGame(models.Model):
 
 
 class Game(models.Model):
-    GAME_STATUS = (
-        ('started', 'Started'),
-        ('upcomming', 'Upcomming')
-    )
-
     home_team = models.CharField(max_length=20)
     visit_team = models.CharField(max_length=20)
     ou = models.FloatField(default=0)
     ml = models.CharField(max_length=20)
     date = models.DateTimeField()
-    game_status = models.CharField(max_length=50, choices=GAME_STATUS, default='started')
 
     def __str__(self):
         return '{} - {}'.format(self.home_team, self.visit_team)
@@ -103,6 +97,6 @@ class TMSCache(models.Model):
     type = models.IntegerField()
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return self.team

@@ -47,9 +47,8 @@ class PlayerGameAdmin(admin.ModelAdmin):
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['home_team', 'visit_team', 'ou', 'ml', 'game_status', 'date']
+    list_display = ['home_team', 'visit_team', 'ou', 'ml', 'date']
     search_fields = ['home_team', 'visit_team']
-    list_filter = ['game_status']
 
 
 @admin.register(TMSCache)
