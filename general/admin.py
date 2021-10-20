@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-
+from django.forms.models import model_to_dict
 from rangefilter.filter import DateRangeFilter
 
 from general.models import *
-from general.utils import *
+from general.utils import download_response
 
 
 @admin.register(Player)
@@ -19,9 +19,9 @@ class PlayerAdmin(admin.ModelAdmin):
 
     def export_players(self, request, queryset):
         fields = ['first_name', 'last_name', 'position', 'team', 'salary', 'proj_points', 'data_source', 'avatar']
-        path = "/tmp/nba_players.csv"
+        data = [model_to_dict(entity, fields=fields) for entity in queryset]
 
-        return download_response(queryset, path, fields)
+        return download_response(fields, data, 'nba_players.csv')
 
     export_players.short_description = "Export CSV" 
 
@@ -38,9 +38,9 @@ class PlayerGameAdmin(admin.ModelAdmin):
     def export_games(self, request, queryset):
         fields = [f.name for f in PlayerGame._meta.get_fields() 
                   if f.name not in ['id', 'is_new']]
-        path = "/tmp/nba_games.csv"
+        data = [model_to_dict(entity, fields=fields) for entity in queryset]
 
-        return download_response(queryset, path, fields)
+        return download_response(fields, data, 'nba_games.csv')
 
     export_games.short_description = "Export CSV" 
 

@@ -48,7 +48,7 @@ class Roster:
             return 100
 
     def sorted_players(self):
-        return sorted(self.players, key=POSITION_ORDER)
+        return sorted(self.players, key=lambda x: POSITION_ORDER[x.position])
 
     def get_csv(self, ds):
         if ds == 'FanDuel': 
@@ -60,7 +60,7 @@ class Roster:
             for ii in pos:
                 for jj in players:
                     if jj.position in ii:
-                        row.append[str(jj)]
+                        row.append(str(jj))
                         players.remove(jj)
                         break
             row.append(players[0])
