@@ -4,3 +4,4 @@ ortools
 beautifulsoup4==4.6.0
 requests
 django-admin-rangefilter
+fuzzywuzzy[speedup]

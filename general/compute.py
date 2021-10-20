@@ -280,7 +280,7 @@ def build_TMS_cache():
     stat_home = [get_team_stat(ii, '') for ii in all_teams()]
     stat_away = [get_team_stat(ii, '@') for ii in all_teams()]
 
-    attrs = stat_home[0].keys()
+    attrs = list(stat_home[0].keys())
     for attr in attrs:
         if attr != 'team':
             order = -1 if attr.startswith('s_') else 1
