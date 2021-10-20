@@ -1,7 +1,8 @@
-# import urllib2
 import requests
 
 from bs4 import BeautifulSoup
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 import os
 from os import sys, path
@@ -13,30 +14,34 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fantasy_nba.settings")
 django.setup()
 
-from general.models import *
+from general.models import PlayerGame, Player
+from general.utils import all_teams
 
 
-def sync(type_, val):
-    # bball -> roto
-    val = val.strip().strip('@')
-    conv = {
-        'team': {
-            'GSW': 'GS',
-            'CHO': 'CHA',
-            'NOP': 'NO',
-            'SAS': 'SA',
-            'BRK': 'BKN',
-            'NYK': 'NY'
-        },
-        'name': {
-            'Juan Hernangomez': 'Juancho Hernangomez',
-            'CJ McCollum': 'C.J. McCollum',
-            'Taurean Waller-Prince': 'Taurean Prince',
-            'Derrick Jones': 'Derrick Jones Jr.'
-        }
-    }
+def build_team_players_map():
+    names_map = {}
+    for team in all_teams():
+        names_map[team] = ['{} {}'.format(player.first_name, player.last_name)
+                           for player in Player.objects.filter(team=team)]
+    return names_map
 
-    return conv[type_][val] if val in conv[type_] else val
+
+def get_match_name(name, player_names):
+    # import pdb; pdb.set_trace()
+    name = clean_unicode(name)
+    match = process.extractOne(name, player_names, scorer=fuzz.token_sort_ratio)
+
+    return match[0]
+
+
+team_map = {
+    'GSW': 'GS',
+    'CHA': 'CHR',
+    'NOP': 'NOR',
+    'SAS': 'SAN',
+    'BRK': 'BKN',
+    'NYK': 'NY'
+}
 
 
 def clean_unicode(name):
@@ -59,11 +64,9 @@ def clean_unicode(name):
     return name
 
 
-def scrape(param):
+def scrape(param, names_map):
     dp = "https://www.basketball-reference.com/friv/dailyleaders.fcgi?" + param
     print (dp)
-    # response = urllib2.urlopen(dp)
-    # r = response.read()
     response = requests.get(dp)
     r = response.text
     
@@ -86,13 +89,12 @@ def scrape(param):
                 continue
 
             mp = player.find("td", {"data-stat":"mp"}).text.split(':')
-            name = player.find("td", {"data-stat":"player"}).text.strip()
-            name = clean_unicode(name)
-            name = sync('name', name)
             team = player.find("td", {"data-stat":"team_id"}).text.strip()
-            team = sync('team', team)
-            opp = player.find("td", {"data-stat":"opp_id"}).text
-            opp = sync('team', opp)
+            team = team_map.get(team, team)
+            name = player.find("td", {"data-stat":"player"}).text.strip()
+            name = get_match_name(name, names_map[team])
+            opp = player.find("td", {"data-stat":"opp_id"}).text.strip()
+            opp = team_map.get(opp, opp)
             uid = player.find("td", {"data-stat":"player"}).get('data-append-csv')
             player_ = Player.objects.filter(first_name__iexact=name.split(' ')[0],
                                             last_name__iexact=name.split(' ')[1],
@@ -113,7 +115,7 @@ def scrape(param):
                 'location': player.find("td", {"data-stat":"game_location"}).text,
                 'opp': opp,
                 'game_result': player.find("td", {"data-stat":"game_result"}).text,
-                'mp': float(mp[0])+float(mp[1])/60,
+                'mp': float(mp[0]) + float(mp[1])/60,
                 'fg': int(player.find("td", {"data-stat":"fg"}).text),
                 'fga': player.find("td", {"data-stat":"fga"}).text,
                 'fg_pct': player.find("td", {"data-stat":"fg_pct"}).text or None,
@@ -136,10 +138,11 @@ def scrape(param):
             PlayerGame.objects.update_or_create(name=name, team=team, date=date, defaults=defaults)
         except (Exception) as e:
             print (e)
-    
+
 
 if __name__ == "__main__":
+    names_map = build_team_players_map()
     for delta in range(3):
         date = datetime.datetime.now() + datetime.timedelta(days=-delta)
         param = 'month={}&day={}&year={}&type=all'.format(date.month, date.day, date.year)
-        scrape(param)
+        scrape(param, names_map)
