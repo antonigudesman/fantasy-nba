@@ -11,6 +11,7 @@ def all_teams():
 def current_season():
     today = datetime.date.today()
     compare_date = datetime.date(today.year, SEASON_START_MONTH, SEASON_START_DAY)
+
     return today.year if today > compare_date else today.year - 1
 
 
