@@ -248,6 +248,7 @@ def gen_lineups(request):
     return HttpResponse(render_to_string('player-lineup.html', locals()))
 
 
+@csrf_exempt
 def export_lineups(request):
     lineups, _ = generate_lineups(request)
     ds = request.POST.get('ds')
