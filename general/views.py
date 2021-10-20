@@ -15,7 +15,9 @@ from general.models import Game, PlayerGame, Player, TMSCache
 from general.constants import DATA_SOURCE
 from general.lineup import Roster
 from general.color import *
-from general.utils import all_teams, current_season, formated_diff, mean, get_num_lineups
+from general.utils import (
+    all_teams, current_season, formated_diff, mean, get_num_lineups, download_response
+)
 from general.compute import get_games_, get_ranking, generate_lineups, filter_players_fpa
 from general.constants import (
     CSV_FIELDS, POSITION, SEASON_START_MONTH, SEASON_START_DAY,
@@ -47,22 +49,10 @@ def download_game_report(request):
     fields = [f.name for f in PlayerGame._meta.get_fields() 
               if f.name not in ['id', 'is_new']]
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="nba_games({}@{}).csv"'.format(game.visit_team, game.home_team)
-    response['X-Frame-Options'] = 'GOFORIT'
+    data = [model_to_dict(entity, fields=fields) for entity in qs]
+    filename = 'nba_games({}@{}).csv'.format(game.visit_team, game.home_team)
 
-    writer = csv.DictWriter(response, fields)
-    writer.writeheader()
-
-    for game in qs:
-        game_ = model_to_dict(game, fields=fields)
-
-        try:
-            writer.writerow(game_)
-        except Exception:
-            print (game_)
-
-    return response
+    return download_response(fields, data, filename)
 
 
 @csrf_exempt
@@ -260,7 +250,6 @@ def gen_lineups(request):
 
 def export_lineups(request):
     lineups, _ = generate_lineups(request)
-
     ds = request.POST.get('ds')
 
     response = HttpResponse(content_type='text/csv')

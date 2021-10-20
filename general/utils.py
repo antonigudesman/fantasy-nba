@@ -1,4 +1,7 @@
+import csv
 import datetime
+
+from django.http import HttpResponse
 
 from general.models import Player
 from general.constants import SEASON_START_MONTH, SEASON_START_DAY
@@ -36,3 +39,21 @@ def mean(numbers):
 
 def get_num_lineups(player, lineups):
     return sum([1 for ii in lineups if ii.is_member(player)])
+
+
+def download_response(header, data, filename):
+    '''
+    :param: header: list(str)
+    :param: data: list(dict)
+    '''
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+    response['X-Frame-Options'] = 'GOFORIT'
+
+    writer = csv.DictWriter(response, header)
+    writer.writeheader()
+
+    for entity in data:
+        writer.writerow(entity)
+
+    return response
