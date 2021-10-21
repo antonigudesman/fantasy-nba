@@ -36,7 +36,7 @@ def get_match_name(name, player_names):
 
 team_map = {
     'GSW': 'GS',
-    'CHA': 'CHR',
+    'CHO': 'CHR',
     'NOP': 'NOR',
     'SAS': 'SAN',
     'BRK': 'BKN',
