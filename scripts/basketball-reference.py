@@ -39,7 +39,7 @@ team_map = {
     'CHO': 'CHR',
     'NOP': 'NOR',
     'SAS': 'SAN',
-    'BRK': 'BKN',
+    'BRK': 'BRO',
     'NYK': 'NY'
 }
 
