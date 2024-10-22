@@ -139,14 +139,8 @@ function showTooltip(x, y, color, contents) {
   }).appendTo("body").fadeIn(200);
 }
 
-function setSeason(obj) {
-  $('.filters .season').removeClass('active');
-  $(obj).addClass('active');
-  loadGame();
-}
-
 function loadGame() {
-  var season = $('.filters .season.active').data('season'),
+  var season = $('.filters .season').val(),
       data = { 
         pid: pid, 
         loc: $('.filters select.loc').val(), 

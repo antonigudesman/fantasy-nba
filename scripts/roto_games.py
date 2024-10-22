@@ -1,5 +1,6 @@
 import requests
 import datetime
+from dateutil.parser import parse
 
 import os
 from os import sys, path
@@ -15,22 +16,23 @@ from scripts.get_slate import get_slate
 
 def get_games(data_source, data_source_id):
     # try:
-        slate_id = get_slate(data_source)
-        url = 'https://www.rotowire.com/daily/tables/nba/schedule.php' + \
-            '?siteID={}&slateID={}'.format(data_source_id, slate_id)
+        url = f'https://www.rotowire.com/daily/nba/api/slate-list.php?siteID={data_source_id}'
         print('=== Url:', url)
-        games = requests.get(url).json()
+        games = requests.get(url).json()['games']
 
         if games:
             Game.objects.all().delete()
-            fields = ['ml', 'home_team', 'visit_team']
-            for ii in games:
-                defaults = { key: str(ii[key]).replace(',', '') for key in fields }
-                defaults['date'] = datetime.datetime.strptime(ii['date'][5:], '%I:%M %p')
-                # date is not used
-                defaults['date'] = datetime.datetime.combine(datetime.date.today(), defaults['date'].time())
-                defaults['ou'] = float(ii['ou']) if ii['ou'] else 0
+
+            for ii in games.values():
+                defaults = {
+                    'home_team': ii['homeTeamCode'],
+                    'visit_team': ii['visitTeamCode'],
+                    'ou': float(ii['overUnder']) if ii['overUnder'] else 0,
+                    'date': parse(ii['gameDate'])
+                }
+
                 Game.objects.create(**defaults)
+
             build_TMS_cache()
             build_player_cache()
     # except:

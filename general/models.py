@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models
 
 from general.constants import DATA_SOURCE
@@ -36,7 +33,7 @@ class Player(models.Model):
 
 
 class FavPlayer(models.Model):
-    player = models.ForeignKey(Player)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{} {}'.format(self.player.first_name, self.player.last_name)

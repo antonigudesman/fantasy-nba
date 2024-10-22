@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import csv
 import json
 import datetime
@@ -27,12 +25,14 @@ from general.constants import (
 
 def players(request):
     players = Player.objects.filter(data_source='FanDuel').order_by('first_name')
+
     return render(request, 'players.html', locals())
 
 
 def lineup(request):
     data_sources = DATA_SOURCE
     games = Game.objects.all()
+
     return render(request, 'lineup.html', locals())
 
 
@@ -93,6 +93,7 @@ def player_detail(request, pid):
     games = get_games_(pid, 'all', '', year)
     avg_min = games.aggregate(Avg('mp'))
     avg_fpts = games.aggregate(Avg('fpts'))
+    years = range(year-1, 2016, -1)
 
     return render(request, 'player_detail.html', locals())
 

@@ -166,7 +166,7 @@
       <table>
         <tr><th class="num">FPTS</th></tr>
         {% for ii in games %}
-        <tr><td>{{ ii.fpts }}</td></tr>
+        <tr><td>{{ ii.fpts|floatformat:1 }}</td></tr>
         {% endfor %}
       </table>
     </td>

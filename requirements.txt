@@ -1,7 +1,6 @@
-Django==1.11.15
-# psycopg2==2.7.3.1
+Django==4.2
 ortools
-beautifulsoup4==4.6.0
+beautifulsoup4
 requests
 django-admin-rangefilter
 fuzzywuzzy[speedup]
