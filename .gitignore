@@ -10,3 +10,4 @@ static/icons
 data/.~lock.*
 *.csv
 *.csv#
+*.sqlite3-journal
