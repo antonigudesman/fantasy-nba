@@ -24,14 +24,15 @@ def get_players(data_source, data_source_id):
 
         for ii in players:
             try:
+                pos = ii['pos']
                 defaults = {
                     'play_today': True,
                     'first_name': ii['firstName'],
                     'last_name': ii['lastName'],
-                    'position': ii['rotoPos'],
+                    'position': pos[0],
                     'opponent': ii['opponent']['team'],
                     'proj_points': ii['pts'],
-                    'actual_position': ii['rotoPos'],
+                    'actual_position': '/'.join(pos),
                     'salary': ii['salary'],
                     'team': ii['team']['abbr'],
                     'injury': ii['injuryStatus'] or '',

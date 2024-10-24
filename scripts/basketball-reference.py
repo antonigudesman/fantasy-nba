@@ -34,13 +34,10 @@ def get_match_name(name, player_names):
     return match[0]
 
 
-team_map = {
-    'GSW': 'GS',
-    'CHO': 'CHR',
-    'NOP': 'NOR',
-    'SAS': 'SAN',
-    'BRK': 'BRO',
-    'NYK': 'NY'
+team_map = {  # basketball : roto
+    'CHO': 'CHA',
+    'BRK': 'BKN',
+    'PHO': 'PHX',
 }
 
 
@@ -101,7 +98,7 @@ def scrape(param, names_map):
                                             team=team)
             # update avatar for possible new players
             avatar = f'https://www.basketball-reference.com/req/202106291/images/headshots/{uid}.jpg'
-            player_.update(avatar=avatar)
+            # player_.update(avatar=avatar)
 
             trb = int(player.find("td", {"data-stat":"trb"}).text)
             ast = int(player.find("td", {"data-stat":"ast"}).text)

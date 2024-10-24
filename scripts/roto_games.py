@@ -1,5 +1,4 @@
 import requests
-import datetime
 from dateutil.parser import parse
 
 import os
@@ -12,7 +11,6 @@ django.setup()
 
 from general.models import Game
 from general.compute import build_player_cache, build_TMS_cache
-from scripts.get_slate import get_slate
 
 def get_games(data_source, data_source_id):
     # try:

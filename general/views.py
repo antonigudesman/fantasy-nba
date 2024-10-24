@@ -93,7 +93,7 @@ def player_detail(request, pid):
     games = get_games_(pid, 'all', '', year)
     avg_min = games.aggregate(Avg('mp'))
     avg_fpts = games.aggregate(Avg('fpts'))
-    years = range(year-1, 2016, -1)
+    years = range(year, 2016, -1)
 
     return render(request, 'player_detail.html', locals())
 
