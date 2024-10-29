@@ -3,6 +3,7 @@ from dateutil.parser import parse
 
 import os
 from os import sys, path
+from datetime import datetime
 import django
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
@@ -20,8 +21,12 @@ def get_games(data_source, data_source_id):
 
         if games:
             Game.objects.all().delete()
+            today = datetime.today().strftime('%Y-%m-%d')
 
             for ii in games.values():
+                if not ii['gameDate'].startswith(today):
+                     continue
+
                 defaults = {
                     'home_team': ii['homeTeamCode'],
                     'visit_team': ii['visitTeamCode'],
