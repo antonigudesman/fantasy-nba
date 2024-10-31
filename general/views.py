@@ -24,7 +24,14 @@ from general.constants import (
 
 
 def players(request):
-    players = Player.objects.filter(data_source='FanDuel').order_by('first_name')
+    season = current_season()
+    start_date = datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY-2)
+
+    # get only players updated in the current season
+    players = Player.objects.filter(data_source='FanDuel',
+                                    updated_at__gte=start_date,
+                                    avatar__contains='content.rotowire.com') \
+                            .order_by('first_name')
 
     return render(request, 'players.html', locals())
 
