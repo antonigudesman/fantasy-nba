@@ -38,6 +38,11 @@ team_map = {  # basketball : roto
     'BRK': 'BKN',
     'PHO': 'PHX',
     'NY': 'NYK',
+    'BRO': 'BKN',
+    'CHR': 'CHA',
+    'GS': 'GSW',
+    'NOR': 'NOP',
+    'SAN': 'SAS',
 }
 
 

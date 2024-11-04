@@ -51,6 +51,10 @@ def download_game_report(request):
               if f.name not in ['id', 'is_new']]
 
     data = [model_to_dict(entity, fields=fields) for entity in qs]
+
+    for item in data:
+        item['mp'] = round(item['mp'], 0)
+
     filename = 'nba_games({}@{}).csv'.format(game.visit_team, game.home_team)
 
     return download_response(fields, data, filename)
