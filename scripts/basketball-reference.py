@@ -27,7 +27,6 @@ def build_team_players_map():
 
 
 def get_match_name(name, player_names):
-    # import pdb; pdb.set_trace()
     name = clean_unicode(name)
     match = process.extractOne(name, player_names, scorer=fuzz.token_sort_ratio)
 
@@ -38,6 +37,7 @@ team_map = {  # basketball : roto
     'CHO': 'CHA',
     'BRK': 'BKN',
     'PHO': 'PHX',
+    'NY': 'NYK',
 }
 
 
@@ -92,13 +92,6 @@ def scrape(param, names_map):
             name = get_match_name(name, names_map[team])
             opp = player.find("td", {"data-stat":"opp_id"}).text.strip()
             opp = team_map.get(opp, opp)
-            uid = player.find("td", {"data-stat":"player"}).get('data-append-csv')
-            player_ = Player.objects.filter(first_name__iexact=name.split(' ')[0],
-                                            last_name__iexact=name.split(' ')[1],
-                                            team=team)
-            # update avatar for possible new players
-            avatar = f'https://www.basketball-reference.com/req/202106291/images/headshots/{uid}.jpg'
-            # player_.update(avatar=avatar)
 
             trb = int(player.find("td", {"data-stat":"trb"}).text)
             ast = int(player.find("td", {"data-stat":"ast"}).text)

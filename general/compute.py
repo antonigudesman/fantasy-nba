@@ -196,10 +196,11 @@ def get_team_info(team, loc):
 
     for ii in players_:
         player = get_player(ii['name'])
+
         if player:
             games = team_games.filter(name=ii['name'], location=loc)
-            ampg = games.aggregate(Avg('mp'))['mp__avg']
-            afp = games.aggregate(Avg('fpts'))['fpts__avg']
+            ampg = games.aggregate(Avg('mp'))['mp__avg'] or 0
+            afp = games.aggregate(Avg('fpts'))['fpts__avg'] or 0
 
             l3a = sum([ig.fpts for ig in games.order_by('-date')[:3]]) / 3
             value = player.salary / 250 + 10

@@ -14,7 +14,8 @@ from general.constants import DATA_SOURCE
 from general.lineup import Roster
 from general.color import *
 from general.utils import (
-    all_teams, current_season, formated_diff, mean, get_num_lineups, download_response
+    all_teams, current_season, formated_diff, mean, get_num_lineups, download_response,
+    get_current_season_players
 )
 from general.compute import get_games_, get_ranking, generate_lineups, filter_players_fpa
 from general.constants import (
@@ -24,14 +25,7 @@ from general.constants import (
 
 
 def players(request):
-    season = current_season()
-    start_date = datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY-2)
-
-    # get only players updated in the current season
-    players = Player.objects.filter(data_source='FanDuel',
-                                    updated_at__gte=start_date,
-                                    avatar__contains='content.rotowire.com') \
-                            .order_by('first_name')
+    players = get_current_season_players()
 
     return render(request, 'players.html', locals())
 
@@ -50,7 +44,7 @@ def download_game_report(request):
 
     q = Q(team__in=[game.home_team, game.visit_team]) & \
         Q(opp__in=[game.home_team, game.visit_team]) & \
-        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
+        Q(date__range=[datetime.date(season-1, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
 
     qs = PlayerGame.objects.filter(q)
     fields = [f.name for f in PlayerGame._meta.get_fields() 
