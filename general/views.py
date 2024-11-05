@@ -168,6 +168,9 @@ def player_match_up(request):
     max_sfp = float(request.POST.get('max_sfp'))
     games = request.POST.get('games').strip(';').split(';')
 
+    if games == ['']:
+        return HttpResponse('No slate found')
+
     game_info = {}
     teams_ = []
     for game in games:

@@ -261,6 +261,9 @@ def build_player_cache():
         game_info[game.home_team] = ''
         game_info[game.visit_team] = '@'
 
+    if not game_info:
+        return
+
     for player in players:
         games = get_games_(player.id, 'all', '', current_season())
         ampg = games.aggregate(Avg('mp'))['mp__avg'] or 0
