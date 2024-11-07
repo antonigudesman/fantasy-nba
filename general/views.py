@@ -53,7 +53,9 @@ def download_game_report(request):
     data = [model_to_dict(entity, fields=fields) for entity in qs]
 
     for item in data:
-        item['mp'] = round(item['mp'], 0)
+        item['mpg'] = round(item.pop('mp', 0), 0)
+
+    fields = [f if f != 'mp' else 'mpg' for f in fields]
 
     filename = 'nba_games({}@{}).csv'.format(game.visit_team, game.home_team)
 
@@ -248,8 +250,9 @@ def gen_lineups(request):
 
     players_ = [{ 'name': '{} {}'.format(ii.first_name, ii.last_name), 
                   'team': ii.team, 
-                  'id': ii.id, 
-                  'avatar': ii.avatar, 
+                  'id': ii.id,
+                  'avatar': ii.avatar,
+                  'uid': ii.uid,
                   'lineups': get_num_lineups(ii, lineups)} 
                 for ii in players if get_num_lineups(ii, lineups)]
     players_ = sorted(players_, key=lambda k: k['lineups'], reverse=True)

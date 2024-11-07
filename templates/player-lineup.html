@@ -1,4 +1,5 @@
 {% load humanize %}
+{% load extra %}
 
 <div class="jumbotron p-4" style="margin-top: 36px;margin-bottom: 15px;">
   <span>Selected Players: </span><span class="font-weight-bold"> {{ players.count }}</span><br>
@@ -12,6 +13,7 @@
           <th>Name</th>
           <th>Team</th>
           <th>Lineups</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +26,7 @@
             </td>
             <td>{{ ii.team }}</td>
             <td>{{ ii.lineups }}</td>
+            <td><i class="far fa-thumbs-up fav {{ ii.uid|liked:request.session }}" data-uid="{{ ii.uid }}"></i></td>
           </tr>
         {% endfor %}
       </tbody>  
