@@ -1,10 +1,14 @@
-import requests
-from dateutil.parser import parse
-
 import os
+
 from os import sys, path
 from datetime import datetime
+from dateutil.parser import parse
+
 import django
+import requests
+
+from pytz import timezone
+
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fantasy_nba.settings")
@@ -21,7 +25,8 @@ def get_games(data_source, data_source_id):
 
         if games:
             Game.objects.all().delete()
-            today = datetime.today().strftime('%Y-%m-%d')
+            pst = timezone('US/Pacific')
+            today = datetime.now(pst).strftime('%Y-%m-%d')
 
             for ii in games.values():
                 if not ii['gameDate'].startswith(today):
