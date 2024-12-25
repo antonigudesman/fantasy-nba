@@ -18,7 +18,7 @@ from general.models import Game
 from general.compute import build_player_cache, build_TMS_cache
 
 def get_games(data_source, data_source_id):
-    # try:
+    try:
         url = f'https://www.rotowire.com/daily/nba/api/slate-list.php?siteID={data_source_id}'
         print('=== Url:', url)
         games = requests.get(url).json()['games']
@@ -43,8 +43,8 @@ def get_games(data_source, data_source_id):
 
             build_TMS_cache()
             build_player_cache()
-    # except:
-    #     pass
+    except:
+        pass
 
 if __name__ == "__main__":
     get_games('FanDuel', 2)
