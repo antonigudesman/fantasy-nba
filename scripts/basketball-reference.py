@@ -27,20 +27,22 @@ def build_team_players_map():
 
 
 def get_match_name(name, player_names):
-    # import pdb; pdb.set_trace()
     name = clean_unicode(name)
     match = process.extractOne(name, player_names, scorer=fuzz.token_sort_ratio)
 
     return match[0]
 
 
-team_map = {
-    'GSW': 'GS',
-    'CHO': 'CHR',
-    'NOP': 'NOR',
-    'SAS': 'SAN',
-    'BRK': 'BRO',
-    'NYK': 'NY'
+team_map = {  # basketball : roto
+    'CHO': 'CHA',
+    'BRK': 'BKN',
+    'PHO': 'PHX',
+    'NY': 'NYK',
+    'BRO': 'BKN',
+    'CHR': 'CHA',
+    'GS': 'GSW',
+    'NOR': 'NOP',
+    'SAN': 'SAS',
 }
 
 
@@ -95,13 +97,6 @@ def scrape(param, names_map):
             name = get_match_name(name, names_map[team])
             opp = player.find("td", {"data-stat":"opp_id"}).text.strip()
             opp = team_map.get(opp, opp)
-            uid = player.find("td", {"data-stat":"player"}).get('data-append-csv')
-            player_ = Player.objects.filter(first_name__iexact=name.split(' ')[0],
-                                            last_name__iexact=name.split(' ')[1],
-                                            team=team)
-            # update avatar for possible new players
-            avatar = 'https://d2cwpp38twqe55.cloudfront.net/req/201808311/images/players/{}.jpg'.format(uid)
-            player_.update(avatar=avatar)
 
             trb = int(player.find("td", {"data-stat":"trb"}).text)
             ast = int(player.find("td", {"data-stat":"ast"}).text)
@@ -142,7 +137,9 @@ def scrape(param, names_map):
 
 if __name__ == "__main__":
     names_map = build_team_players_map()
+
     for delta in range(3):
         date = datetime.datetime.now() + datetime.timedelta(days=-delta)
-        param = 'month={}&day={}&year={}&type=all'.format(date.month, date.day, date.year)
+        # date = datetime.datetime(2023, 11 , 21) + datetime.timedelta(days=delta)
+        param = f'month={date.month}&day={date.day}&year={date.year}&type=all'
         scrape(param, names_map)

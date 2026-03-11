@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import csv
 import json
 import datetime
@@ -16,7 +14,8 @@ from general.constants import DATA_SOURCE
 from general.lineup import Roster
 from general.color import *
 from general.utils import (
-    all_teams, current_season, formated_diff, mean, get_num_lineups, download_response
+    all_teams, current_season, formated_diff, mean, get_num_lineups, download_response,
+    get_current_season_players
 )
 from general.compute import get_games_, get_ranking, generate_lineups, filter_players_fpa
 from general.constants import (
@@ -26,13 +25,15 @@ from general.constants import (
 
 
 def players(request):
-    players = Player.objects.filter(data_source='FanDuel').order_by('first_name')
+    players = get_current_season_players()
+
     return render(request, 'players.html', locals())
 
 
 def lineup(request):
     data_sources = DATA_SOURCE
     games = Game.objects.all()
+
     return render(request, 'lineup.html', locals())
 
 
@@ -43,13 +44,19 @@ def download_game_report(request):
 
     q = Q(team__in=[game.home_team, game.visit_team]) & \
         Q(opp__in=[game.home_team, game.visit_team]) & \
-        Q(date__range=[datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
+        Q(date__range=[datetime.date(season-1, SEASON_START_MONTH, SEASON_START_DAY), datetime.date(season+1, SEASON_END_MONTH, SEASON_END_DAY)])
 
     qs = PlayerGame.objects.filter(q)
     fields = [f.name for f in PlayerGame._meta.get_fields() 
               if f.name not in ['id', 'is_new']]
 
     data = [model_to_dict(entity, fields=fields) for entity in qs]
+
+    for item in data:
+        item['mpg'] = round(item.pop('mp', 0), 0)
+
+    fields = [f if f != 'mp' else 'mpg' for f in fields]
+
     filename = 'nba_games({}@{}).csv'.format(game.visit_team, game.home_team)
 
     return download_response(fields, data, filename)
@@ -93,6 +100,7 @@ def player_detail(request, pid):
     games = get_games_(pid, 'all', '', year)
     avg_min = games.aggregate(Avg('mp'))
     avg_fpts = games.aggregate(Avg('fpts'))
+    years = range(year, 2016, -1)
 
     return render(request, 'player_detail.html', locals())
 
@@ -161,6 +169,9 @@ def player_match_up(request):
     max_afp = float(request.POST.get('max_afp'))
     max_sfp = float(request.POST.get('max_sfp'))
     games = request.POST.get('games').strip(';').split(';')
+
+    if games == ['']:
+        return HttpResponse('No slate found')
 
     game_info = {}
     teams_ = []
@@ -239,8 +250,9 @@ def gen_lineups(request):
 
     players_ = [{ 'name': '{} {}'.format(ii.first_name, ii.last_name), 
                   'team': ii.team, 
-                  'id': ii.id, 
-                  'avatar': ii.avatar, 
+                  'id': ii.id,
+                  'avatar': ii.avatar,
+                  'uid': ii.uid,
                   'lineups': get_num_lineups(ii, lineups)} 
                 for ii in players if get_num_lineups(ii, lineups)]
     players_ = sorted(players_, key=lambda k: k['lineups'], reverse=True)

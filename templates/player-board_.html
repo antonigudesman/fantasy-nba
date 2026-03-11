@@ -1,4 +1,5 @@
 {% load extra %}
+
 <table class="table table-hover table-responsive-md">
 <thead>
   <tr>
@@ -26,7 +27,7 @@
     {% for ii in players %}
       <tr>
         {% if ii %}
-          <td colspan="5"><a href="/players/{{ ii.id }}" style="font-size: 14px;"><img src="{{ ii.avatar }}" onerror="this.src='/static/img/nba.ico'" height="24" class="mr-2">{{ ii.name }}</a></td>
+          <td colspan="5"><a href="/players/{{ ii.id }}" style="font-size: 14px;"><img src="{{ ii.avatar }}" onerror="this.src='/static/img/nba.png'" height="24" class="mr-2">{{ ii.name }}</a></td>
           <td>{{ ii.pos }}</td>
           <td>{{ ii.team }}</td>
           <td>{{ ii.loc }}</td>

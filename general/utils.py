@@ -18,6 +18,19 @@ def current_season():
     return today.year if today > compare_date else today.year - 1
 
 
+def get_current_season_players():
+    """
+    Get only players updated in the current season
+    """
+    season = current_season()
+    start_date = datetime.date(season, SEASON_START_MONTH, SEASON_START_DAY-1)
+
+    return Player.objects.filter(data_source='FanDuel',
+                                 updated_at__gte=start_date,
+                                 avatar__contains='content.rotowire.com') \
+                         .order_by('first_name')
+
+
 def formated_diff(val):
     fm = '{:.1f}' if val > 0 else '({:.1f})'
     return fm.format(abs(val))
@@ -28,8 +41,10 @@ def get_player(full_name):
     FanDuel has top priority
     '''
     names = full_name.split(' ')
-    players = Player.objects.filter(first_name=names[0], last_name=names[1]) \
-                            .order_by('data_source')
+    base_players = get_current_season_players()
+    players = base_players.filter(first_name=names[0], last_name=names[1]) \
+                          .order_by('data_source')
+
     return players.filter(data_source='FanDuel').first()
 
 
